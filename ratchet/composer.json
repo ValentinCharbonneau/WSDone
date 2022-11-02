@@ -1,0 +1,17 @@
+{
+    "name": "valen/ratchet",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ValentinCharbonneau",
+            "email": "valentincharbonneau@outlook.fr"
+        }
+    ],
+    "require": {
+        "cboden/ratchet": "^0.4.4"
+    }
+}

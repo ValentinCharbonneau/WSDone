@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>WebSocket auctions</title>
+		<title>WebSocket Auctions</title>
 		<style>
 			body { margin: 0; padding-bottom: 3rem;
 				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -20,9 +20,8 @@
 			#products > li:nth-child(odd) { background: #efefef; }
 		</style>
 	</head>
-    <script src="/socket.io/socket.io.js"></script>
     <script>
-        var socket = io();
+        var socket  = new WebSocket('ws://localhost:8888');
 
         function display(id)
         {
@@ -42,7 +41,7 @@
 
         function add (product)
         {
-            socket.emit("add", product);
+            socket.send(JSON.stringify({ 'type': 'add', 'product': product }));
         }
 
         function listenToSubmit(id)
@@ -51,14 +50,17 @@
                 e.preventDefault();
                 let offer = document.getElementById(id.split('-')[0]+"-value");
                 if (offer.value) {
-                    socket.emit('offer', id.split('-')[0], offer.value);
+                    socket.send(JSON.stringify({ 'type': 'offer', 'product':id.split('-')[0], 'product': id.split('-')[0], 'price': offer.value }));
                 }
             });
         }
 
-        socket.on('offer', function(product, offer) {
-            document.getElementById(product+"-value").value = offer;
-        });
+        socket.onmessage = function(e) {
+            var data = JSON.parse(e.data);
+            if ('type' in data && data['type'] == 'offer') {
+                document.getElementById(data['product']+"-value").value = data['price'];
+            }
+        }
     </script>
 	<body>
 		<ul id="products">
