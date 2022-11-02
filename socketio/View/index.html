@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>WebSocket chat</title>
+		<style>
+			body { margin: 0; padding-bottom: 3rem;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+            form { float: right; margin: 0.6rem; display: none; }
+            form > button { background: #333; border: none; padding: 0.5rem 1rem; margin-left: 10px;
+				border-radius: 3px; outline: none; color: #fff; }
+
+			#products { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; display: grid;
+				height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+            #products > li > p { float: left; }
+            #products > li > button { float: right; background: #333; border: none; padding: 0.5rem 1rem; margin: 0.6rem;
+				border-radius: 3px; outline: none; color: #fff; }
+
+			#products { list-style-type: none; margin: 0; padding: 0; }
+			#products > li { padding: 0.5rem 1rem; }
+			#products > li:nth-child(odd) { background: #efefef; }
+		</style>
+	</head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        function display(id)
+        {
+            for(i=0;i<document.getElementById(id).children.length;i++)
+            {
+                if (document.getElementById(id).children[i].tagName == "FORM")
+                {
+                    document.getElementById(id).children[i].style.display = "block";
+                }
+                else if (document.getElementById(id).children[i].tagName == "BUTTON")
+                {
+                    document.getElementById(id).children[i].style.display = "none";
+                }
+            }
+            add(id);
+        }
+
+        function add (product)
+        {
+            socket.emit("add", product);
+        }
+
+        function listenToSubmit(id)
+        {
+            document.getElementById(id).addEventListener('submit', function(e) {
+                e.preventDefault();
+                let offer = document.getElementById(id.split('-')[0]+"-value");
+                if (offer.value) {
+                    socket.emit('offer', id.split('-')[0], offer.value);
+                }
+            });
+        }
+
+        socket.on('offer', function(product, offer) {
+            document.getElementById(product+"-value").value = offer;
+        });
+    </script>
+	<body>
+		<ul id="products">
+            <li id="voiture">
+                <p>Voiture</p>
+                <form id="voiture-form">
+                    <input id="voiture-value" autocomplete="off" value="0" />€
+                    <button>Enchérir</button>
+                </form>
+                <button onclick="display('voiture')">Participer</button>
+            </li>
+            <li id="maison">
+                <p>Maison</p>
+                <form id="maison-form">
+                    <input id="maison-value" autocomplete="off" value="0" />€
+                    <button>Enchérir</button>
+                </form>
+                <button onclick="display('maison')">Participer</button>
+            </li>
+            <li id="livre">
+                <p>Livre</p>
+                <form id="livre-form">
+                    <input id="livre-value" autocomplete="off" value="0" />€
+                    <button>Enchérir</button>
+                </form>
+                <button onclick="display('livre')">Participer</button>
+            </li>
+        </ul>
+	</body>
+	<script>
+        for (i=0;i<document.getElementsByTagName("FORM").length;i++) {
+            listenToSubmit(document.getElementsByTagName("FORM")[i].id);
+        }
+    </script>
+</html>
+
